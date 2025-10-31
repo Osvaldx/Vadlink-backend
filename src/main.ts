@@ -8,6 +8,7 @@ async function bootstrap() {
   // Configuración para evitar recibir cosas que no queremos por body.
   app.useGlobalPipes(
     new ValidationPipe({
+      forbidNonWhitelisted: true,
       whitelist: true,
     }),
   );
