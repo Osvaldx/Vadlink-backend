@@ -1,4 +1,4 @@
-import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, Length, Max } from "class-validator";
+import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length } from "class-validator";
 
 export class CreateUserDto {
     @IsString()
@@ -9,13 +9,23 @@ export class CreateUserDto {
     @IsString()
     @IsOptional()
     lastName: string;
-    
-    @IsInt()
-    @IsNotEmpty()
-    @IsPositive()
-    @Max(120)
-    age: number;
 
+    @IsString()
+    @Length(3, 20)
+    username: string;
+
+    @IsEnum(['usuario', 'administrador'])
+    @IsOptional()
+    rol: string
+    
+    @IsString()
+    @IsOptional()
+    description: string;
+    
+    @IsNotEmpty()
+    @IsDateString()
+    dateofbirth: Date;
+    
     @IsEmail()
     @IsNotEmpty()
     email: string;
