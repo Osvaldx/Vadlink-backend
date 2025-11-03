@@ -26,6 +26,7 @@ export class UsersService {
 
   async remove(id: string) {
     const result = await this.userModel.deleteOne({ _id: id });
-    return result;
+
+    return { message: (result.deletedCount >= 1) ? '[+] Se elimino el usuario' : '[-] No se elimino ningun usuario' };
   }
 }
