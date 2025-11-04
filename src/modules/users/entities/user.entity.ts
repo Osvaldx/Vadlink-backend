@@ -11,13 +11,13 @@ export class User {
     @Prop()
     lastName: string;
 
-    @Prop({ required: true})
+    @Prop({ required: true, unique: true})
     username: string;
 
     @Prop({enum: ['usuario', 'administrador'], default: 'usuario'})
     rol: string;
 
-    @Prop()
+    @Prop({ default: null })
     description: string
 
     @Prop({ required: true, type: Date })
@@ -29,8 +29,11 @@ export class User {
     @Prop({ required: true })
     password: string;
 
-    @Prop()
+    @Prop({ default: 'https://res.cloudinary.com/dpnt3npyv/image/upload/v1762289030/not_photo.jpg' })
     avatar: string
+
+    @Prop({ default: 'not_photo' })
+    avatar_id: string;
 
     @Prop({ default: new Date() })
     createDate: Date;
