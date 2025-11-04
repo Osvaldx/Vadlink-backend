@@ -20,6 +20,7 @@ export class CreateUserDto {
     
     @IsString()
     @IsOptional()
+    @Length(1, 20)
     description: string;
     
     @IsNotEmpty()
@@ -34,4 +35,8 @@ export class CreateUserDto {
     @IsNotEmpty()
     @Length(3, 100)
     password: string;
+
+    @IsString()
+    @IsOptional()
+    avatar: string
 }
