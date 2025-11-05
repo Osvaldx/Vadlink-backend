@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthUserDto } from './dto/auth-user-dto';
 import type { Request, Response } from 'express';
-import { JwtGuard } from 'src/guards/jwt/jwt.guard';
+import { JwtGuard } from '../../guards/jwt/jwt.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')

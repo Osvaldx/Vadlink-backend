@@ -1,7 +1,7 @@
 import { Controller, Get, Body, Patch, Param, Delete, Post, UseGuards, UseInterceptors, UploadedFile, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtGuard } from 'src/guards/jwt/jwt.guard';
+import { JwtGuard } from '../../guards/jwt/jwt.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 
