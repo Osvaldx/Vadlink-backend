@@ -35,8 +35,4 @@ export class CreateUserDto {
     @IsNotEmpty()
     @Length(3, 100)
     password: string;
-
-    @IsString()
-    @IsOptional()
-    avatar: string
 }
