@@ -29,8 +29,8 @@ export class AuthService {
         const newUser = new this.userModel({
           ...createUserDto,
           email: createUserDto.email.toLowerCase(),
-          avatar: uploadResult?.secure_url || null,
-          avatar_id: uploadResult?.public_id || null
+          avatar: uploadResult?.secure_url || 'https://res.cloudinary.com/dpnt3npyv/image/upload/v1762318074/sinfoto_pswht4.jpg',
+          avatar_id: uploadResult?.public_id || 'sinfoto_pswht4'
         });
       
         const hashPass = await bcrypt.hash(newUser.password, 10);
