@@ -9,7 +9,7 @@ async function bootstrap() {
 
   // habilitamos los cors
   app.enableCors({
-    origin: ['http://localhost:4200', 'https://vadlink-backend.vercel.app'],
+    origin: ['http://localhost:4200', 'https://vadlink-frontend.vercel.app'],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
