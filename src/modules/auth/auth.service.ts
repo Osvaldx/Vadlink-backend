@@ -1,51 +1,49 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../users/entities/user.entity';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { AuthUserDto } from './dto/auth-user-dto';
-import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 
 @Injectable()
 export class AuthService {
 
-    constructor(@InjectModel(User.name) private userModel: Model<User>) {}
-
-    // -------------------------------------------------------------------------------- //
-    async signUp(createUserDto: CreateUserDto, response: Response) {
+    constructor(@InjectModel(User.name) private userModel: Model<User>, private readonly cloudService: CloudinaryService) {}
+    
+    async signUp(createUserDto: CreateUserDto, response: Response, file?: Express.Multer.File) {
         const userEmail = await this.userModel.findOne({ email: createUserDto.email.toLowerCase() });
-        if(userEmail) {
-            throw new HttpException("[!] Ese Email ya esta registrado", HttpStatus.CONFLICT);
+        if (userEmail) throw new HttpException("[!] Ese Email ya esta registrado", HttpStatus.CONFLICT);
+      
+        let uploadResult: UploadApiResponse | UploadApiErrorResponse | null = null;
+        if (file) {
+            uploadResult = await this.cloudService.uploadImage(file);
         }
-
-        const userUsername = await this.userModel.findOne({ username: createUserDto.username });
-        if(userUsername) {
-            throw new HttpException("[!] Ese Username ya existe!", HttpStatus.CONFLICT);
-        }
-        
-        const newUser = new this.userModel({...createUserDto, email: createUserDto.email.toLowerCase()});
-
-        const saltOrRounds = 10;
-        const pass = newUser.password;
-        const hashPass = await bcrypt.hash(pass, saltOrRounds);
-
+      
+        const newUser = new this.userModel({
+          ...createUserDto,
+          email: createUserDto.email.toLowerCase(),
+          avatar: uploadResult?.secure_url || null,
+          avatar_id: uploadResult?.public_id || null
+        });
+      
+        const hashPass = await bcrypt.hash(newUser.password, 10);
         newUser.set("password", hashPass);
+      
         const createdUser = await newUser.save();
-
-        if(createdUser.errors) {
-            throw new HttpException(createdUser.errors.message, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
         const token = this.createToken(createdUser);
         this.saveInCookie(token, response);
-
+      
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...userSafe } = createdUser.toObject();
-
-        return {...userSafe, password: '$hash'};
-    }
+        return { ...userSafe, password: '$hash' };
+      }
     // -------------------------------------------------------------------------------- //
     
     // -------------------------------------------------------------------------------- //
@@ -75,24 +73,34 @@ export class AuthService {
         return { ...userSafe, password: '$hash' };
     }
     // -------------------------------------------------------------------------------- //
+
+    // -------------------------------------------------------------------------------- //
+    signOut(response: Response) {
+        response.cookie('token', '', {
+          httpOnly: true,
+          sameSite: 'none',
+          secure: true,
+          expires: new Date(0)
+        });
+      
+        return response.json({ message: 'Sesión cerrada correctamente' });
+      }
+    // -------------------------------------------------------------------------------- //
     
     // -------------------------------------------------------------------------------- //
-    public verify(request: Request): JwtPayload | string {
-        const token = request.cookies['token'] as string;
-        try {
-            const validate = jwt.verify(token, process.env.SECRET_KEY!);
-            return validate;
-        } catch(error) {
-            if(error instanceof TokenExpiredError) {
-                throw new HttpException('[!] Token Expirado', HttpStatus.UNAUTHORIZED);
-            }
-            
-            if(error instanceof JsonWebTokenError) {
-                throw new HttpException('[!] Fallo la firma del token', HttpStatus.UNAUTHORIZED);
-            }
+    async verify(request: Request) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const payload = request['user'];
+        
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const user = await this.userModel.findById(payload.id);
+        if(!user) {
+            throw new HttpException('[!] Usuario no encontrado', HttpStatus.BAD_REQUEST);
         }
-
-        throw new InternalServerErrorException();
+        
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, ...userSafe } = user.toObject();
+        return { ...userSafe, password: '$hash' };
     }
     // -------------------------------------------------------------------------------- //
 
