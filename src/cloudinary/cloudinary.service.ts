@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 // (2) (cloudinary) Servicio para manejar subida de imágenes a Cloudinary
 import { Injectable } from '@nestjs/common';

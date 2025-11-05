@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthUserDto } from './dto/auth-user-dto';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 
 @Injectable()
