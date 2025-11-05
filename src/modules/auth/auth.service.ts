@@ -89,10 +89,8 @@ export class AuthService {
     
     // -------------------------------------------------------------------------------- //
     async verify(request: Request) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const payload = request['user'];
         
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const user = await this.userModel.findById(payload.id);
         if(!user) {
             throw new HttpException('[!] Usuario no encontrado', HttpStatus.BAD_REQUEST);
