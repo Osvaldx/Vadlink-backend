@@ -39,20 +39,20 @@ export class UsersService {
   async remove(id: string) {
     const result = await this.userModel.deleteOne({ _id: id });
 
-    return { message: (result.deletedCount >= 1) ? '[+] Se elimino el usuario' : '[-] No se elimino ningun usuario' };
+    return { message: (result.deletedCount >= 1) ? 'Se elimino el usuario' : 'No se elimino ningun usuario' };
   }
 
   async uploadAvatar(file: Express.Multer.File, req: Request) {
     const user: userJwtData = req['user'];
 
     if (!user || !user.id) {
-      throw new HttpException('[!] No se pudo obtener el usuario autenticado', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('No se pudo obtener el usuario autenticado', HttpStatus.UNAUTHORIZED);
     }
 
     const userDB = await this.findOne(user.id);
 
     if (!userDB) {
-      throw new HttpException('[!] Usuario no encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
 
     if (userDB.avatar_id) {
@@ -67,9 +67,9 @@ export class UsersService {
     const { errors } = await userDB.save();
 
     if(errors) {
-      throw new HttpException({ message: '[!] Error al subir la imagen', error: errors }, HttpStatus.BAD_REQUEST);
+      throw new HttpException({ message: 'Error al subir la imagen', error: errors }, HttpStatus.BAD_REQUEST);
     }
 
-    return { message: '[+] Avatar actualizado!' }
+    return { message: 'Avatar actualizado!' }
   }
 }

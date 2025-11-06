@@ -19,7 +19,7 @@ export class AuthService {
     
     async signUp(createUserDto: CreateUserDto, response: Response, file?: Express.Multer.File) {
         const userEmail = await this.userModel.findOne({ email: createUserDto.email.toLowerCase() });
-        if (userEmail) throw new HttpException("[!] Ese Email ya esta registrado", HttpStatus.CONFLICT);
+        if (userEmail) throw new HttpException("Ese Email ya esta registrado", HttpStatus.CONFLICT);
       
         let uploadResult: UploadApiResponse | UploadApiErrorResponse | null = null;
         if (file) {
@@ -56,12 +56,12 @@ export class AuthService {
         });
         
         if(!userDB) {
-            throw new HttpException("[!] Usuario no encontrado", HttpStatus.NOT_FOUND);
+            throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
         }
         
         const isMatch = await bcrypt.compare(authUserDto.password, userDB.password);
         if(!isMatch) {
-            throw new HttpException("[!] La contraseña es incorrecta", HttpStatus.UNAUTHORIZED);
+            throw new HttpException("La contraseña es incorrecta", HttpStatus.UNAUTHORIZED);
         }
         
         const token = this.createToken(userDB);
@@ -93,7 +93,7 @@ export class AuthService {
         
         const user = await this.userModel.findById(payload.id);
         if(!user) {
-            throw new HttpException('[!] Usuario no encontrado', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Usuario no encontrado', HttpStatus.BAD_REQUEST);
         }
         
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
