@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
 import { Request } from 'express';
 import { CloudinaryService } from '../../cloudinary/cloudinary.service';
+import { ValidateObjectID } from 'src/common/utils/validate-object-id';
 
 export interface userJwtData {
   id: string,
@@ -37,12 +38,21 @@ export class UsersService {
   }
 
   async remove(id: string) {
+    ValidateObjectID(id);
     const result = await this.userModel.deleteOne({ _id: id });
 
     return { message: (result.deletedCount >= 1) ? 'Se elimino el usuario' : 'No se elimino ningun usuario' };
   }
 
   async uploadAvatar(file: Express.Multer.File, req: Request) {
+
+    if(file) {
+      const extension = file.originalname.split('.').pop();
+      if(extension && !['png', 'jpg', 'jpeg', 'webp'].includes(extension)) {
+        throw new BadRequestException('Formato de imagen invalido');
+      }
+    }
+    
     const user: userJwtData = req['user'];
 
     if (!user || !user.id) {
@@ -59,7 +69,7 @@ export class UsersService {
       await this.cloudService.deleteImage(userDB.avatar_id);
     }
 
-    const uploadResult = await this.cloudService.uploadImage(file);
+    const uploadResult = await this.cloudService.uploadAvatar(file);
 
     userDB.avatar = uploadResult.secure_url;
     userDB.avatar_id = uploadResult.public_id;
