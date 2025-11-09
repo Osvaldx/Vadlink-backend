@@ -7,9 +7,9 @@ import { Request } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post } from './entities/post.entity';
 import { Model } from 'mongoose';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 import { Likes, PostDate } from './posts.controller';
-import { ValidateObjectID } from 'src/common/utils/validate-object-id';
+import { ValidateObjectID } from '../../common/utils/validate-object-id';
 
 type Filters = {
   username?: string | null,

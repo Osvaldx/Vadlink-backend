@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Delete, UseGuards, UseInterceptors, Req, UploadedFile, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { JwtGuard } from 'src/guards/jwt/jwt.guard';
+import { JwtGuard } from '../../guards/jwt/jwt.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 

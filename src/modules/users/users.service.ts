@@ -6,7 +6,7 @@ import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
 import { Request } from 'express';
 import { CloudinaryService } from '../../cloudinary/cloudinary.service';
-import { ValidateObjectID } from 'src/common/utils/validate-object-id';
+import { ValidateObjectID } from '../../common/utils/validate-object-id';
 
 export interface userJwtData {
   id: string,
