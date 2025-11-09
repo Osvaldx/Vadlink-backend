@@ -7,7 +7,7 @@ import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 @Injectable()
 export class CloudinaryService {
   // Subir imagen a Cloudinary desde buffer de memoria
-  async uploadImage(
+  async uploadAvatar(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
@@ -17,6 +17,26 @@ export class CloudinaryService {
           folder: 'vadlink-avatars', // Organizar en carpeta específica
           transformation: [
             { width: 300, height: 300, crop: 'fill' }, // Redimensionar a 300x300
+            { quality: 'auto' }, // Optimizar calidad automáticamente
+          ],
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          if (result) resolve(result);
+        },
+      ).end(file.buffer);
+    });
+  }
+
+  async uploadPost(
+    file: Express.Multer.File,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'auto', // Auto-detectar tipo de archivo
+          folder: 'vadlink-posts', // Organizar en carpeta específica
+          transformation: [
             { quality: 'auto' }, // Optimizar calidad automáticamente
           ],
         },
