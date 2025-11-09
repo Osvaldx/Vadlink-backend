@@ -1,34 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, UseInterceptors, Req, UploadedFile, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { JwtGuard } from 'src/guards/jwt/jwt.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
+
+export type Likes = 'asc' | 'desc';
+export type PostDate = 'asc' | 'desc';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  @UseInterceptors(FileInterceptor('file'))
+  create(@UploadedFile() file: Express.Multer.File, @Body() createPostDto: CreatePostDto, @Req() request: Request) {
+    return this.postsService.create(file, createPostDto, request);
   }
 
+  @UseGuards(JwtGuard)
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(
+    @Req() request: Request,
+    @Query('username') username?: string,
+    @Query('date') date?: PostDate,
+    @Query('likes') likes?: Likes,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number
+  ) {
+    return this.postsService.findAll({ date, likes, username, limit, offset }, request);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
-  }
-
+  @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  remove(@Param('id') id: string, @Req() request: Request) {
+    return this.postsService.remove(id, request);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('like/:id')
+  like(@Param('id') id: string, @Req() request: Request) {
+    return this.postsService.like(id, request);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('removeLike/:id')
+  removeLike(@Param('id') id: string, @Req() request: Request) {
+    return this.postsService.removeLike(id, request);
   }
 }
