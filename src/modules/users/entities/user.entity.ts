@@ -14,7 +14,7 @@ export class User {
     @Prop({ required: true, unique: true})
     username: string;
 
-    @Prop({enum: ['usuario', 'administrador'], default: 'usuario'})
+    @Prop({enum: ['user', 'admin'], default: 'user'})
     rol: string;
 
     @Prop({ default: null })
@@ -29,11 +29,17 @@ export class User {
     @Prop({ required: true })
     password: string;
 
-    @Prop({ default: 'https://res.cloudinary.com/dpnt3npyv/image/upload/v1762289030/not_photo.jpg' })
+    @Prop({ default: process.env.AVATAR_DEFAULT })
     avatar: string
 
-    @Prop({ default: 'not_photo' })
+    @Prop({ default: process.env.AVATAR_DEFAULT_ID })
     avatar_id: string;
+
+    @Prop({ default: process.env.BANNER_DEFAULT })
+    banner: string
+
+    @Prop({ default: process.env.BANNER_DEFAULT_ID })
+    banner_id: string
 
     @Prop({ default: new Date() })
     createDate: Date;
