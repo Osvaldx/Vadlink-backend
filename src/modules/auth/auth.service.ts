@@ -23,14 +23,16 @@ export class AuthService {
       
         let uploadResult: UploadApiResponse | UploadApiErrorResponse | null = null;
         if (file) {
-            uploadResult = await this.cloudService.uploadImage(file);
+            uploadResult = await this.cloudService.uploadAvatar(file);
         }
       
         const newUser = new this.userModel({
           ...createUserDto,
           email: createUserDto.email.toLowerCase(),
-          avatar: uploadResult?.secure_url || 'https://res.cloudinary.com/dpnt3npyv/image/upload/v1762318074/sinfoto_pswht4.jpg',
-          avatar_id: uploadResult?.public_id || 'sinfoto_pswht4'
+          avatar: uploadResult?.secure_url || process.env.AVATAR_DEFAULT,
+          avatar_id: uploadResult?.public_id || process.env.AVATAR_DEFAULT_ID,
+          banner: process.env.BANNER_DEFAULT,
+          banner_id: process.env.BANNER_DEFAULT_ID,
         });
       
         const hashPass = await bcrypt.hash(newUser.password, 10);
@@ -113,7 +115,9 @@ export class AuthService {
                 rol: userDB.rol,
                 email: userDB.email,
                 avatar: userDB.avatar,
-                avatar_id: userDB.avatar_id
+                avatar_id: userDB.avatar_id,
+                banner: userDB.banner,
+                banner_id: userDB.banner_id
             }},
             process.env.SECRET_KEY!, { expiresIn: '15m' });
 
