@@ -14,13 +14,13 @@ export class CreateUserDto {
     @Length(3, 20)
     username: string;
 
-    @IsEnum(['usuario', 'administrador'])
+    @IsEnum(['user', 'admin'])
     @IsOptional()
     rol: string
     
     @IsString()
     @IsOptional()
-    @Length(1, 20)
+    @Length(1, 50)
     description: string;
     
     @IsNotEmpty()
