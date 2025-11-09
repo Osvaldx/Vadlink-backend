@@ -22,6 +22,10 @@ async function bootstrap() {
     new ValidationPipe({
       forbidNonWhitelisted: true,
       whitelist: true,
+      transform: true, // convierte los tipos automaticamente
+      transformOptions: {
+        enableImplicitConversion: true // permite pasar de "0" a 0 automaticamente
+      }
     }),
   );
 
