@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
     MongooseModule.forRoot(process.env.MONGODB_URI!),
     UsersModule,
     PostsModule,
-    AuthModule
+    AuthModule,
+    CommentsModule
   ],
   controllers: [AppController],
   providers: [AppService],
