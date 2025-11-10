@@ -14,7 +14,7 @@ export class JwtGuard implements CanActivate {
     
     const token = request.cookies['token'] as string;
 
-    if(!token || token == '') throw new HttpException('[!] Token no enviado', HttpStatus.UNAUTHORIZED);
+    if(!token || token == '') throw new HttpException('Token no enviado', HttpStatus.UNAUTHORIZED);
 
     try {
       const decode = jwt.verify(token, process.env.SECRET_KEY!) as jwt.JwtPayload;
@@ -22,13 +22,13 @@ export class JwtGuard implements CanActivate {
       return true;
     } catch(error) {
       if(error instanceof TokenExpiredError) {
-          throw new HttpException('[!] Token Expirado', HttpStatus.UNAUTHORIZED);
+          throw new HttpException('Token Expirado', HttpStatus.UNAUTHORIZED);
       }
       
       if(error instanceof JsonWebTokenError) {
-          throw new HttpException('[!] Fallo la firma del token', HttpStatus.UNAUTHORIZED);
+          throw new HttpException('Fallo la firma del token', HttpStatus.UNAUTHORIZED);
       }
-  }
+    }
 
   throw new InternalServerErrorException();
   }
