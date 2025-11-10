@@ -126,6 +126,7 @@ export class PostsService {
     }
 
     post.likedBy.push(payload.id);
+    post.likes = post.likes + 1;
     const result = await post.save();
     
     return { message: 'Se registro el like a la publicación', post_id: result._id };
@@ -147,11 +148,18 @@ export class PostsService {
     if(!post.likedBy.includes(payload.id)) {
       throw new BadRequestException('La publicación no tiene tu like');
     }
-
+    
     post.likedBy = post.likedBy.filter(p => p._id != payload.id);
+    post.likes = post.likes - 1;
     const result = await post.save();
 
     return { message: 'Se saco el like de la publicidad', post_id: result._id };
+  }
+  // --------------------------------------------------------------------------------------- //
+
+  // --------------------------------------------------------------------------------------- //
+  async findOnePost(id: string) {
+    return this.postModel.findById(id);
   }
   // --------------------------------------------------------------------------------------- //
 }
