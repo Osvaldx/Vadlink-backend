@@ -22,14 +22,13 @@ export class PostsController {
   @UseGuards(JwtGuard)
   @Get()
   findAll(
-    @Req() request: Request,
     @Query('username') username?: string,
     @Query('date') date?: PostDate,
     @Query('likes') likes?: Likes,
     @Query('limit') limit?: number,
     @Query('offset') offset?: number
   ) {
-    return this.postsService.findAll({ date, likes, username, limit, offset }, request);
+    return this.postsService.findAll({ date, likes, username, limit, offset });
   }
 
   @UseGuards(JwtGuard)
