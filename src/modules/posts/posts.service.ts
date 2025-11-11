@@ -45,7 +45,9 @@ export class PostsService {
     }
 
     const createdPost = new this.postModel(createPostDto);
-    const result = createdPost.save();
+    const result = await createdPost.save();
+
+    await result.populate('user_id', 'firstName lastName avatar username');
 
     return result;
   }
