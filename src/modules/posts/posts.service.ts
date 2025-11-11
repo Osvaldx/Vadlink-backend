@@ -59,7 +59,7 @@ export class PostsService {
     .find()
     .where('isDeleted')
     .equals(false)
-    .populate('user_id', 'firstName lastName avatar username');;
+    .populate('user_id', 'firstName lastName avatar username');
 
     if(filters.username) {
       query.where('username').equals(filters.username);
