@@ -9,15 +9,17 @@ export class CreatePostDto {
 
     @IsOptional()
     @IsString()
-    @Length(10, 2000)
+    @Length(1, 2000)
     description: string;
 
     @IsNumber()
     @Min(0)
+    @IsOptional()
     likes: number;
 
     @IsNumber()
     @Min(0)
+    @IsOptional()
     shared: number;
 
     @IsOptional()
