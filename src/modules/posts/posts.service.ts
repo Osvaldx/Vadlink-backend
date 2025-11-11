@@ -52,13 +52,12 @@ export class PostsService {
   // --------------------------------------------------------------------------------------- //
     
   // --------------------------------------------------------------------------------------- //
-  async findAll(filters: Filters, request: Request) {
-    const query = this.postModel.find()
-    const payload = request['user'];
-
-    if(payload.rol != 'admin') {
-      query.where('isDeleted').equals(false);
-    }
+  async findAll(filters: Filters) {
+    const query = this.postModel
+    .find()
+    .where('isDeleted')
+    .equals(false)
+    .populate('user_id', 'firstName lastName avatar username');;
 
     if(filters.username) {
       query.where('username').equals(filters.username);
@@ -159,7 +158,7 @@ export class PostsService {
 
   // --------------------------------------------------------------------------------------- //
   async findOnePost(id: string) {
-    return this.postModel.findById(id);
+    return this.postModel.findById(id).populate('user_id', 'firstName lastName avatar username');
   }
   // --------------------------------------------------------------------------------------- //
 }
