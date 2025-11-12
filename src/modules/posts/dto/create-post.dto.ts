@@ -4,7 +4,7 @@ import type { ObjectId } from "mongoose"
 export class CreatePostDto {
 
     @IsString()
-    @Length(3, 100)
+    @Length(1, 100)
     title: string;
 
     @IsOptional()
