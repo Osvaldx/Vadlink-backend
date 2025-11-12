@@ -54,7 +54,7 @@ export class PostsService {
   // --------------------------------------------------------------------------------------- //
     
   // --------------------------------------------------------------------------------------- //
-  async findAll(filters: Filters) {
+  async findAll(filters: Filters, request: Request) {
     const query = this.postModel
     .find()
     .where('isDeleted')
@@ -81,8 +81,15 @@ export class PostsService {
       query.skip(filters.offset);
     }
 
-    const posts = await query.exec();
+    const payload = request['user'];
+    const userId = payload.id;
 
+    const postsDB = await query.exec();
+    const posts = postsDB.map(post => ({
+      ...post.toObject(),
+      liked: post.likedBy.includes(userId),
+    }));
+    
     return posts;
   }
   // --------------------------------------------------------------------------------------- //
