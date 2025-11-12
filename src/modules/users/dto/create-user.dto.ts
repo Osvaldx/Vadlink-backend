@@ -20,7 +20,7 @@ export class CreateUserDto {
     
     @IsString()
     @IsOptional()
-    @Length(1, 50)
+    @Length(1, 100)
     description: string;
     
     @IsNotEmpty()
