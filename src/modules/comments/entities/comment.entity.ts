@@ -24,6 +24,9 @@ export class Comment {
     @Prop({ required: true })
     texto: string;
 
+    @Prop({ default: false })
+    modified: boolean
+
     @Prop({ type: SchemaTypes.Date, default: new Date() })
     created_at: Date;
 }
