@@ -61,6 +61,8 @@ export class PostsService {
     .equals(false)
     .populate('user_id', 'firstName lastName avatar username');
 
+    const total = await query.clone().countDocuments();
+
     if(filters.username) {
       query.where('username').equals(filters.username);
     }
@@ -90,7 +92,7 @@ export class PostsService {
       liked: post.likedBy.includes(userId),
     }));
     
-    return posts;
+    return { total, posts };
   }
   // --------------------------------------------------------------------------------------- //
     
