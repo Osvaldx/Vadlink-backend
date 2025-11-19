@@ -1,12 +1,9 @@
 import { IsOptional, IsString, Length } from "class-validator";
-import { ObjectId } from "mongoose";
 
-export class CreateCommentDto {
-    post_id: ObjectId;
-    
+export class CreateCommentDto {    
     @IsString()
     @Length(1, 100)
-    texto: string;
+    text: string;
     
     @IsOptional()
     created_at: Date;
