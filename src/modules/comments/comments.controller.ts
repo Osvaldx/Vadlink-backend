@@ -1,23 +1,30 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, UseGuards, Req } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { JwtGuard } from 'src/guards/jwt/jwt.guard';
+import type { Request } from 'express';
+import { UpdateCommentDto } from './dto/update-comment-dto';
 
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Post(':postId')
-  create(@Param('postId') postId: string, @Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(postId, createCommentDto);
+  @UseGuards(JwtGuard)
+  @Post('/add/:postId')
+  public addComment(@Req() request: Request, @Body() createCommentDto: CreateCommentDto, @Param('postId') postId: string ) {
+    return this.commentsService.create(createCommentDto, request, postId);
   }
 
+  @UseGuards(JwtGuard)
+  @Put('/update/:commentId')
+  public updateComment(@Req() request: Request, @Body() updateCommentDto: UpdateCommentDto, @Param('commentId') commentId: string) {
+    return this.commentsService.update(updateCommentDto, request, commentId);
+  }
+
+  @UseGuards(JwtGuard)
   @Get(':postId')
-  findAll(@Param('postId') postId: string) {
+  public findAllComments(@Param('postId') postId: string) {
     return this.commentsService.findAll(postId);
   }
 
-  @Delete(':commentId')
-  remove(@Param('commentId') commentId: string) {
-    return this.commentsService.remove(commentId);
-  }
 }
