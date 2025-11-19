@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -5,31 +6,74 @@ import { Comment } from './entities/comment.entity';
 import { Model } from 'mongoose';
 import { PostsService } from '../posts/posts.service';
 import { ValidateObjectID } from '../../common/utils/validate-object-id';
+import { Request } from 'express';
+import { UpdateCommentDto } from './dto/update-comment-dto';
+import { PayloadTokenFormat } from 'src/interfaces/payload-token-format/payload-token-format.interface';
 
 @Injectable()
 export class CommentsService {
 
   constructor(@InjectModel(Comment.name) private commentModel: Model<Comment>, private readonly postService: PostsService) { }
 
-  async create(postId: string, createCommentDto: CreateCommentDto) {
-    ValidateObjectID(postId);
-    
-    const post = await this.postService.findOnePost(postId);
-    
-    if(!post) throw new HttpException('No se encontro una publicación con ese ID', HttpStatus.NOT_FOUND);
-    
-    const newComment = new this.commentModel({...createCommentDto, post_id: postId});
-    const result = newComment.save();
-    
-    return result;
-  }
-  
-  findAll(postId: string) {
-    ValidateObjectID(postId);
-    return this.commentModel.find().where('post_id').equals(postId);
+  public async create(createCommentDto: CreateCommentDto, request: Request, postId: string) {
+    try {
+      const payload = request['user'] as PayloadTokenFormat;
+      const comment = new this.commentModel({
+        ...createCommentDto,
+        post_id: postId,
+        user_id: payload.id,
+        username: payload.username,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        modified: false
+      })
+
+      const newComment = await comment.save();
+
+      return newComment;
+    } catch(err) {
+      const error = err as Error
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  remove(commentId: string) {
-    return commentId;
+  public async update(updateCommentDto: UpdateCommentDto, request: Request, commentId: string) {
+    try {
+      ValidateObjectID(commentId);
+  
+      const payload = request['user'] as PayloadTokenFormat;
+  
+      const comment = await this.commentModel.findOne({
+        _id: commentId,
+      });
+  
+      if (!comment) {
+        throw new HttpException('Comentario no encontrado', HttpStatus.NOT_FOUND);
+      }
+  
+      if (comment.user_id != payload.id) {
+        throw new HttpException('No tienes permiso para editar este comentario', HttpStatus.FORBIDDEN);
+      }
+  
+      comment.text = updateCommentDto.text!;
+      comment.modified = true;
+      await comment.save();
+  
+      return comment;
+  
+    } catch (err) {
+      const error = err as Error
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public async findAll(postId: string) {
+    ValidateObjectID(postId);
+
+    const comments = await this.commentModel.find({ post_id: postId });
+
+    if(!comments || comments.length === 0) throw new HttpException('No se encontraron comentarios', HttpStatus.NOT_FOUND);
+
+    return comments
   }
 }
