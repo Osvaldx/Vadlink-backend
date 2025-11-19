@@ -41,10 +41,12 @@ export class AuthService {
         const createdUser = await newUser.save();
         const token = this.createToken(createdUser);
         this.saveInCookie(token, response);
+
+        const decoded = jwt.decode(token) as jwt.JwtPayload;
       
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...userSafe } = createdUser.toObject();
-        return { ...userSafe, password: '$hash' };
+        return { ...userSafe, exp: decoded.exp };
       }
     // -------------------------------------------------------------------------------- //
     
@@ -69,10 +71,12 @@ export class AuthService {
         const token = this.createToken(userDB);
         this.saveInCookie(token, response);
 
+        const decoded = jwt.decode(token) as jwt.JwtPayload;
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...userSafe } = userDB.toObject();
 
-        return { ...userSafe, password: '$hash' };
+        return { ...userSafe, exp: decoded.exp };
     }
     // -------------------------------------------------------------------------------- //
 
@@ -90,17 +94,35 @@ export class AuthService {
     // -------------------------------------------------------------------------------- //
     
     // -------------------------------------------------------------------------------- //
-    async verify(request: Request) {
+    async authorize(request: Request) {
         const payload = request['user'];
         
         const user = await this.userModel.findById(payload.id);
         if(!user) {
-            throw new HttpException('Usuario no encontrado', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Usuario no encontrado', HttpStatus.UNAUTHORIZED);
         }
         
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...userSafe } = user.toObject();
-        return { ...userSafe, password: '$hash' };
+        return { ...userSafe, exp: payload.exp };
+    }
+    // -------------------------------------------------------------------------------- //
+
+    // -------------------------------------------------------------------------------- //
+    async refresh(request: Request, response: Response) {
+        const payload = request['user'];
+    
+        const user = await this.userModel.findById(payload.id);
+        if (!user) {
+            throw new HttpException('Usuario no encontrado', HttpStatus.UNAUTHORIZED);
+        }
+    
+        const newToken = this.createToken(user);
+        this.saveInCookie(newToken, response);
+
+        const decoded = jwt.decode(newToken) as jwt.JwtPayload;
+    
+        return { message: "Token renovado", exp: decoded.exp };
     }
     // -------------------------------------------------------------------------------- //
 
