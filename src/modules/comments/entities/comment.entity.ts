@@ -1,8 +1,9 @@
-import { Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { type ObjectId, SchemaTypes } from "mongoose";
 import { Post } from "src/modules/posts/entities/post.entity";
 import { User } from "src/modules/users/entities/user.entity";
 
+@Schema()
 export class Comment {
     _id: ObjectId;
 
@@ -22,7 +23,7 @@ export class Comment {
     lastName: string;
 
     @Prop({ required: true })
-    texto: string;
+    text: string;
 
     @Prop({ default: false })
     modified: boolean
