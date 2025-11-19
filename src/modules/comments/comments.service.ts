@@ -10,6 +10,11 @@ import { Request } from 'express';
 import { UpdateCommentDto } from './dto/update-comment-dto';
 import { PayloadTokenFormat } from 'src/interfaces/payload-token-format/payload-token-format.interface';
 
+type Filters = {
+  limit?: number,
+  offset?: number
+}
+
 @Injectable()
 export class CommentsService {
 
@@ -67,13 +72,25 @@ export class CommentsService {
     }
   }
 
-  public async findAll(postId: string) {
+  public async findAll(postId: string, filters: Filters) {
     ValidateObjectID(postId);
 
-    const comments = await this.commentModel.find({ post_id: postId });
+    const query = this.commentModel.find({ post_id: postId }).sort({ created_at: -1 });
+
+    const total = await query.clone().countDocuments();
+
+    if (filters.limit) {
+      query.limit(filters.limit);
+    }
+
+    if (filters.offset) {
+      query.skip(filters.offset);
+    }
+
+    const comments = await query.exec();
 
     if(!comments || comments.length === 0) throw new HttpException('No se encontraron comentarios', HttpStatus.NOT_FOUND);
 
-    return comments
+    return { total, comments };
   }
 }

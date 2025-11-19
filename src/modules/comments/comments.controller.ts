@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, UseGuards, Req, Query } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { JwtGuard } from 'src/guards/jwt/jwt.guard';
@@ -23,8 +23,12 @@ export class CommentsController {
 
   @UseGuards(JwtGuard)
   @Get(':postId')
-  public findAllComments(@Param('postId') postId: string) {
-    return this.commentsService.findAll(postId);
+  public findAllComments(
+    @Param('postId') postId: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number
+  ) {
+    return this.commentsService.findAll(postId, { limit, offset });
   }
 
 }
