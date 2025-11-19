@@ -18,7 +18,7 @@ export class JwtGuard implements CanActivate {
 
     try {
       const decode = jwt.verify(token, process.env.SECRET_KEY!) as jwt.JwtPayload;
-      request['user'] = decode.payload;
+      request['user'] = {...decode.payload, exp: decode.exp};
       return true;
     } catch(error) {
       if(error instanceof TokenExpiredError) {
