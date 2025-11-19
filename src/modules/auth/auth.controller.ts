@@ -29,9 +29,15 @@ export class AuthController {
     }
 
     @UseGuards(JwtGuard)
-    @Post('/data')
-    public verify(@Req() request: Request) {
-        return this.authService.verify(request);
+    @Post('/authorize')
+    public authorize(@Req() request: Request) {
+        return this.authService.authorize(request);
+    }
+
+    @UseGuards(JwtGuard)
+    @Post('/refresh')
+    public refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+        return this.authService.refresh(request, response);
     }
 
 }
