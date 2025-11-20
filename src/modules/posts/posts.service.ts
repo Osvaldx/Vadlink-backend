@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 import { Likes, PostDate } from './posts.controller';
 import { ValidateObjectID } from '../../common/utils/validate-object-id';
+import { CommentsService } from '../comments/comments.service';
 
 type Filters = {
   username?: string | null,
@@ -22,7 +23,7 @@ type Filters = {
 @Injectable()
 export class PostsService {
 
-  constructor(@InjectModel(Post.name) private postModel: Model<Post>, private readonly cloudService: CloudinaryService) { };
+  constructor(@InjectModel(Post.name) private postModel: Model<Post>, private readonly cloudService: CloudinaryService, private readonly commentsService: CommentsService) { };
 
   // --------------------------------------------------------------------------------------- //
   async create(file: Express.Multer.File, createPostDto: CreatePostDto, request: Request) {
@@ -87,10 +88,17 @@ export class PostsService {
     const userId = payload.id;
 
     const postsDB = await query.exec();
-    const posts = postsDB.map(post => ({
-      ...post.toObject(),
-      liked: post.likedBy.includes(userId),
-    }));
+    const posts = await Promise.all(
+      postsDB.map(async post => {
+        const commentsCount = await this.commentsService.countDocuments(post._id);
+    
+        return {
+          ...post.toObject(),
+          liked: post.likedBy.includes(userId),
+          commentsCount
+        };
+      })
+    );
     
     return { total, posts };
   }
