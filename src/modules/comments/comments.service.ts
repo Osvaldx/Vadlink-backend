@@ -2,8 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment } from './entities/comment.entity';
-import { Model } from 'mongoose';
-import { PostsService } from '../posts/posts.service';
+import { Model, ObjectId } from 'mongoose';
 import { ValidateObjectID } from '../../common/utils/validate-object-id';
 import { Request } from 'express';
 import { UpdateCommentDto } from './dto/update-comment-dto';
@@ -17,7 +16,7 @@ type Filters = {
 @Injectable()
 export class CommentsService {
 
-  constructor(@InjectModel(Comment.name) private commentModel: Model<Comment>, private readonly postService: PostsService) { }
+  constructor(@InjectModel(Comment.name) private commentModel: Model<Comment>) { }
 
   public async create(createCommentDto: CreateCommentDto, request: Request, postId: string) {
     try {
@@ -29,7 +28,8 @@ export class CommentsService {
         username: payload.username,
         firstName: payload.firstName,
         lastName: payload.lastName,
-        modified: false
+        modified: false,
+        avatar: payload.avatar,
       })
 
       const newComment = await comment.save();
@@ -88,8 +88,12 @@ export class CommentsService {
 
     const comments = await query.exec();
 
-    if(!comments || comments.length === 0) throw new HttpException('No se encontraron comentarios', HttpStatus.NOT_FOUND);
-
     return { total, comments };
+  }
+
+  public async countDocuments(postId: ObjectId) {
+    const commentsCount = await this.commentModel.countDocuments({ post_id: postId });
+
+    return commentsCount;
   }
 }
