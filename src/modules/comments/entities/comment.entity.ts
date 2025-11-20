@@ -28,6 +28,9 @@ export class Comment {
     @Prop({ default: false })
     modified: boolean
 
+    @Prop({ required: true })
+    avatar: string
+
     @Prop({ type: SchemaTypes.Date, default: new Date() })
     created_at: Date;
 }
