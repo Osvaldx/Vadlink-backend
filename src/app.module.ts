@@ -8,6 +8,7 @@ import { PostsModule } from './modules/posts/posts.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
 import { CommentsModule } from './modules/comments/comments.module';
+import { StatsModule } from './modules/stats/stats.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { CommentsModule } from './modules/comments/comments.module';
     UsersModule,
     PostsModule,
     AuthModule,
-    CommentsModule
+    CommentsModule,
+    StatsModule
   ],
   controllers: [AppController],
   providers: [AppService],
