@@ -2,65 +2,39 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../users/entities/user.entity';
-import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { AuthUserDto } from './dto/auth-user-dto';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
-import { CloudinaryService } from '../../cloudinary/cloudinary.service';
-import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
 
-    constructor(@InjectModel(User.name) private userModel: Model<User>, private readonly cloudService: CloudinaryService) {}
+    constructor(private readonly usersService: UsersService) {}
     
-    async signUp(createUserDto: CreateUserDto, response: Response, file?: Express.Multer.File) {
-        const userEmail = await this.userModel.findOne({ email: createUserDto.email.toLowerCase() });
-        if (userEmail) throw new HttpException("Ese Email ya esta registrado", HttpStatus.CONFLICT);
-      
-        let uploadResult: UploadApiResponse | UploadApiErrorResponse | null = null;
-        if (file) {
-            uploadResult = await this.cloudService.uploadAvatar(file);
-        }
-      
-        const newUser = new this.userModel({
-          ...createUserDto,
-          email: createUserDto.email.toLowerCase(),
-          avatar: uploadResult?.secure_url || process.env.AVATAR_DEFAULT,
-          avatar_id: uploadResult?.public_id || process.env.AVATAR_DEFAULT_ID,
-          banner: process.env.BANNER_DEFAULT,
-          banner_id: process.env.BANNER_DEFAULT_ID,
-        });
-      
-        const hashPass = await bcrypt.hash(newUser.password, 10);
-        newUser.set("password", hashPass);
-      
-        const createdUser = await newUser.save();
-        const token = this.createToken(createdUser);
-        this.saveInCookie(token, response);
-
-        const decoded = jwt.decode(token) as jwt.JwtPayload;
-      
+    async signUp(createUserDto: CreateUserDto, file?: Express.Multer.File) {
+        const createdUser = await this.usersService.create(createUserDto, file);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...userSafe } = createdUser.toObject();
-        return { ...userSafe, exp: decoded.exp };
+        return { ...userSafe, password: '$hash' };
       }
     // -------------------------------------------------------------------------------- //
     
     // -------------------------------------------------------------------------------- //
     async signIn(authUserDto: AuthUserDto, response: Response) {
-        const userDB = await this.userModel.findOne({
-            $or: [
-                { email: authUserDto.emailOrUsername.toLowerCase() },
-                { username: authUserDto.emailOrUsername }
-            ]
-        });
+        const userDB = await this.usersService.findOneEmailOrUsername(
+            authUserDto.emailOrUsername.toLowerCase(),
+            authUserDto.emailOrUsername
+        );
         
         if(!userDB) {
             throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+        }
+
+        if(userDB.isDisabled) {
+            throw new HttpException("Cuenta Suspendida", HttpStatus.FORBIDDEN);
         }
         
         const isMatch = await bcrypt.compare(authUserDto.password, userDB.password);
@@ -97,7 +71,7 @@ export class AuthService {
     async authorize(request: Request) {
         const payload = request['user'];
         
-        const user = await this.userModel.findById(payload.id);
+        const user = await this.usersService.findOneById(payload.id as string);
         if(!user) {
             throw new HttpException('Usuario no encontrado', HttpStatus.UNAUTHORIZED);
         }
@@ -112,7 +86,7 @@ export class AuthService {
     async refresh(request: Request, response: Response) {
         const payload = request['user'];
     
-        const user = await this.userModel.findById(payload.id);
+        const user = await this.usersService.findOneById(payload.id as string);
         if (!user) {
             throw new HttpException('Usuario no encontrado', HttpStatus.UNAUTHORIZED);
         }
