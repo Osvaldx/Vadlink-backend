@@ -25,6 +25,11 @@ export class IsAdminGuard implements CanActivate {
       
       throw new HttpException('No estas autorizado', HttpStatus.UNAUTHORIZED);
     } catch(error) {
+
+      if(error instanceof HttpException) {
+        throw error;
+      }
+
       if(error instanceof TokenExpiredError) {
           throw new HttpException('Token Expirado', HttpStatus.UNAUTHORIZED);
       }
