@@ -4,11 +4,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from '../../guards/jwt/jwt.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
+import { IsAdminGuard } from 'src/guards/is-admin/is-admin.guard';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(IsAdminGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
@@ -16,7 +19,25 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOneById(id);
+  }
+
+  @UseGuards(IsAdminGuard)
+  @Post()
+  createUser(@Body() createUserDto: CreateUserDto, @UploadedFile() file: Express.Multer.File) {
+    return this.usersService.create(createUserDto, file);
+  }
+
+  @UseGuards(IsAdminGuard)
+  @Delete('/disable/:userId')
+  disableUser(@Param('userId') userId: string) {
+    return this.usersService.disableOrEnableUser(userId, true);
+  }
+
+  @UseGuards(IsAdminGuard)
+  @Post('/enable/:userId')
+  enableUser(@Param('userId') userId: string) {
+    return this.usersService.disableOrEnableUser(userId, false);
   }
 
   @UseGuards(JwtGuard)
