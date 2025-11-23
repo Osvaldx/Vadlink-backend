@@ -9,5 +9,6 @@ import { CloudinaryModule } from '../../cloudinary/cloudinary.module';
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), CloudinaryModule],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService]
 })
 export class UsersModule {}
