@@ -3,10 +3,10 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/entities/user.entity';
-import { CloudinaryModule } from '../../cloudinary/cloudinary.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), CloudinaryModule],
+  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), UsersModule],
   controllers: [AuthController],
   providers: [AuthService]
 })
