@@ -13,8 +13,8 @@ export class AuthController {
 
     @Post("/register")
     @UseInterceptors(FileInterceptor('avatar'))
-    public async signUp(@UploadedFile() file: Express.Multer.File, @Body() createUserDto: CreateUserDto, @Res({ passthrough: true }) response: Response) {
-        return this.authService.signUp(createUserDto, response, file);
+    public async signUp(@UploadedFile() file: Express.Multer.File, @Body() createUserDto: CreateUserDto) {
+        return this.authService.signUp(createUserDto, file);
     }
 
     @Post("/login")
