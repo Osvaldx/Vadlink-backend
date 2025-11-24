@@ -34,42 +34,41 @@ export class StatsService {
         const { fromDate, toDate } = this.buildDateRange(range);
 
         const data = await this.postModel.aggregate([
-            {
-                $match: {
-                    isDeleted: false,
-                    created_at: { $gte: fromDate, $lte: toDate },
-                },
+          {
+            $match: {
+              isDeleted: false,
+              created_at: { $gte: fromDate, $lte: toDate },
             },
-            {
-                $group: {
-                    _id: '$user_id',
-                    postsCount: { $sum: 1 },
-                },
+          },
+          {
+            $group: {
+              _id: '$user_id',
+              postsCount: { $sum: 1 },
             },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'user',
-                },
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'user',
             },
-            { $unwind: '$user' },
-            {
-                $project: {
-                    _id: 0,
-                    userId: '$_id',
-                    username: '$user.username',
-                    firstName: '$user.firstName',
-                    lastName: '$user.lastName',
-                    postsCount: 1,
-                },
+          },
+          { $unwind: '$user' },
+          {
+            $project: {
+              _id: 0,
+              userId: '$_id',
+              username: '$user.username',
+              firstName: '$user.firstName',
+              lastName: '$user.lastName',
+              postsCount: 1,
             },
-            { $sort: { postsCount: -1 } },
+          },
+          { $sort: { postsCount: -1 } },
         ]);
-
         return { from: fromDate, to: toDate, data, };
-    }
+      }
     
     async getCommentsCount(range: Range) {
         const { fromDate, toDate } = this.buildDateRange(range);
@@ -210,7 +209,7 @@ export class StatsService {
         {
           $project: {
             title: 1,
-            likes: { $size: "$likedBy" }
+            likes: 1
           }
         },
         { $sort: { likes: -1 } }
