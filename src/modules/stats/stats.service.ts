@@ -105,25 +105,118 @@ export class StatsService {
                 },
             },
             { $unwind: '$post' },
+    
+            // Filtrar por posts no eliminados
+            { $match: { 'post.isDeleted': false } },
+    
+            // Lookup del autor real del post
             {
-                $match: {
-                    'post.isDeleted': { $ne: true },
+                $lookup: {
+                    from: 'users',
+                    localField: 'post.user_id',
+                    foreignField: '_id',
+                    as: 'author',
                 },
             },
+            { $unwind: '$author' },
+    
             {
                 $project: {
                     _id: 0,
                     postId: '$_id',
                     title: '$post.title',
-                    postAuthorId: '$post.user_id',
-                    postAuthorUsername: '$post.username',
                     commentsCount: 1,
+                    postAuthorId: '$author._id',
+                    postAuthorUsername: '$author.username',
                 },
             },
             { $sort: { commentsCount: -1 } },
         ]);
-
+    
         return { from: fromDate, to: toDate, data };
+    }
+
+    async getPostsTimeline(range: Range) {
+        const { fromDate, toDate } = this.buildDateRange(range);
+      
+        const data = await this.postModel.aggregate([
+          {
+            $match: {
+              isDeleted: false,
+              created_at: { $gte: fromDate, $lte: toDate },
+            }
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: "%Y-%m-%d", date: "$created_at" }
+              },
+              count: { $sum: 1 }
+            }
+          },
+          { $sort: { _id: 1 } },
+          {
+            $project: {
+              _id: 0,
+              date: "$_id",
+              count: 1
+            }
+          }
+        ]);
+      
+        return { from: fromDate, to: toDate, data };
+    }
+
+    async getCommentsTimeline(range: Range) {
+        const { fromDate, toDate } = this.buildDateRange(range);
+      
+        const data = await this.commentModel.aggregate([
+          {
+            $match: {
+              created_at: { $gte: fromDate, $lte: toDate }
+            }
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: "%Y-%m-%d", date: "$created_at" }
+              },
+              count: { $sum: 1 }
+            }
+          },
+          { $sort: { _id: 1 } },
+          {
+            $project: {
+              _id: 0,
+              date: "$_id",
+              count: 1
+            }
+          }
+        ]);
+      
+        return { from: fromDate, to: toDate, data };
+    }
+
+    async getPostsLikes(range: Range) {
+      const { fromDate, toDate } = this.buildDateRange(range);
+    
+      const data = await this.postModel.aggregate([
+        {
+          $match: {
+            isDeleted: false,
+            created_at: { $gte: fromDate, $lte: toDate }
+          }
+        },
+        {
+          $project: {
+            title: 1,
+            likes: { $size: "$likedBy" }
+          }
+        },
+        { $sort: { likes: -1 } }
+      ]);
+    
+      return { from: fromDate, to: toDate, data };
     }
 
 }

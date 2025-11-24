@@ -23,4 +23,22 @@ export class StatsController {
   getCommentsPerPost(@Query('from') from: string, @Query('to') to: string,) {
     return this.statsService.getCommentsPerPost({ from, to });
   }
+
+  @UseGuards(IsAdminGuard)
+  @Get('posts/timeline')
+  getPostsTimeline(@Query('from') from: string, @Query('to') to: string) {
+    return this.statsService.getPostsTimeline({ from, to });
+  }
+
+  @UseGuards(IsAdminGuard)
+  @Get('comments/timeline')
+  getCommentsTimeline(@Query('from') from: string, @Query('to') to: string) {
+    return this.statsService.getCommentsTimeline({ from, to });
+  }
+
+  @UseGuards(IsAdminGuard)
+  @Get('posts/likes')
+  getLikesStats(@Query('from') from: string, @Query('to') to: string) {
+    return this.statsService.getPostsLikes({ from, to });
+  }
 }
