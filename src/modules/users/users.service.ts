@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 import { Request } from 'express';
 import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 import { ValidateObjectID } from '../../common/utils/validate-object-id';
-import { IsAdminGuard } from 'src/guards/is-admin/is-admin.guard';
+import { IsAdminGuard } from '../../guards/is-admin/is-admin.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 import * as bcrypt from 'bcrypt';

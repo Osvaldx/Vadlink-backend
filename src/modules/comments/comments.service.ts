@@ -6,7 +6,7 @@ import { Model, ObjectId } from 'mongoose';
 import { ValidateObjectID } from '../../common/utils/validate-object-id';
 import { Request } from 'express';
 import { UpdateCommentDto } from './dto/update-comment-dto';
-import { PayloadTokenFormat } from 'src/interfaces/payload-token-format/payload-token-format.interface';
+import { PayloadTokenFormat } from '../../interfaces/payload-token-format/payload-token-format.interface';
 
 type Filters = {
   limit?: number,

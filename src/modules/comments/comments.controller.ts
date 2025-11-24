@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Put, UseGuards, Req, Query } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { JwtGuard } from 'src/guards/jwt/jwt.guard';
+import { JwtGuard } from '../../guards/jwt/jwt.guard';
 import type { Request } from 'express';
 import { UpdateCommentDto } from './dto/update-comment-dto';
 
