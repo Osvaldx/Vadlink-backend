@@ -23,7 +23,7 @@ export class IsAdminGuard implements CanActivate {
         return true;
       }
       
-      throw new HttpException('No estas autorizado', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('No estas autorizado', HttpStatus.FORBIDDEN);
     } catch(error) {
 
       if(error instanceof HttpException) {
