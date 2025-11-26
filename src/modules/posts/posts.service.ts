@@ -120,6 +120,7 @@ export class PostsService {
     const result = await this.postModel.updateOne({ _id: id }, { isDeleted: true });
 
     if(result.modifiedCount > 0) {
+      await this.commentsService.disabledCommentsFromPosts(id);
       return { message: 'Publicación eliminada con exito!' };
     }
 
