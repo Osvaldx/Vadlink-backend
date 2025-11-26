@@ -96,4 +96,8 @@ export class CommentsService {
 
     return commentsCount;
   }
+
+  public async disabledCommentsFromPosts(postId: string) {
+    await this.commentModel.updateMany({ post_id: postId }, { disabled: true });
+  }
 }

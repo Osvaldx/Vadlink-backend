@@ -25,8 +25,11 @@ export class Comment {
     @Prop({ required: true })
     text: string;
 
-    @Prop({ default: false })
+    @Prop({ required: true ,default: false })
     modified: boolean
+
+    @Prop({ required: true, default: false })
+    disabled: boolean
 
     @Prop({ required: true })
     avatar: string
